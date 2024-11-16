@@ -3,16 +3,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using WebStore.Data;
 using WebStore.Models;
 using WebStore.Models.ViewModels;
+using System;
+using System.Collections.Generic;
 
 namespace WebStore.Controllers
 {
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(ApplicationDbContext db)
+        public ProductController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
         {
             _db = db;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -58,7 +62,10 @@ namespace WebStore.Controllers
             else
             {
                 productVM.Product = _db.Product.Find(id);
-                if(productVM.Product==null) return NotFound();
+                if(productVM.Product == null)
+                {
+                    return NotFound();
+                }
                 return View(productVM);
 
             }
@@ -67,15 +74,49 @@ namespace WebStore.Controllers
 		// POST - Upsert
 		[HttpPost]
         [ValidateAntiForgeryToken]
-		public IActionResult Upsert(Category obj)
+		public IActionResult Upsert(ProductVM productVM)
 		{
-			if(ModelState.IsValid)
+            //var rec = Request.Form.Files; // Получить список переданных файлов
+            productVM.Product.Image = productVM.imageF.FileName;
+            productVM.Product.CategoryId = productVM.categoryVM;
+
+            var category_ = _db.Category.Find(productVM.Product.CategoryId);
+            productVM.Product.Category = category_;
+
+            var f = true;
+            if (f/*ModelState.IsValid*/)
+
             {
-                _db.Category.Add(obj);
+                var files = HttpContext.Request.Form.Files;
+                string webRootPath = _webHostEnvironment.WebRootPath;  // F:\!Coding\C#\Store2\WebStore\wwwroot
+
+
+
+                if (productVM.Product.Id == 0)
+                {
+                    //Creating
+                    string upload = webRootPath + WC.ImagePath;
+                    string fileName = Guid.NewGuid().ToString();
+                    string extension = Path.GetExtension(files[0].FileName);
+
+                    using (var fileStream = new FileStream(Path.Combine(upload, fileName + extension), FileMode.Create))
+                    {
+                        files[0].CopyTo(fileStream);
+                    }
+
+                    productVM.Product.Image = fileName + extension;
+
+                    _db.Product.Add(productVM.Product);
+                }
+                else
+                {
+                    //Updating
+                }
+
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(obj);
+            return View();
 
         }
 

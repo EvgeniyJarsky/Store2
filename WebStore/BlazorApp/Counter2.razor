@@ -1,0 +1,32 @@
+﻿@page "/app2"
+@rendermode InteractiveServer
+
+<h1>Это вторая страница!!!</h1>
+
+<div class="form-group row">
+    <div class="col-4">
+        Image
+    </div>
+    <div class="col-8">
+        <input type="file" name="files" id="uploadBox" multiple class="form-control" />
+    </div>
+
+</div>
+
+<p>Count: @currentCount</p>
+<button @onclick="IncrementCount">+</button>
+<button @onclick="DecrementCount">-</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private void DecrementCount()
+    {
+        if (currentCount > 0) currentCount--;
+    }
+}

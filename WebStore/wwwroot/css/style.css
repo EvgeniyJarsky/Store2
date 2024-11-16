@@ -1,0 +1,40 @@
+#myTable {
+border-collapse: separate ; /* Collapse borders
+width: 100%; /* Full-width */
+border: 5px solid #090808; 
+font-size: 16px; /* Increase font-size */
+}
+
+#myTable th, #myTable td {
+text-align: center;
+ padding: 1px; /* Add padding */
+font-weight: 700;
+border-bottom: 1px solid #090808;
+cursor: pointer;
+}
+
+#myTable tr {
+/* Add a bottom border to all table rows */
+/* border-bottom: 1px solid #080908; */
+border-color: blue;
+}
+
+#myTable tr.header {
+/* Add a grey background color to the table header and on hover */
+background-color: #d4d0d0;
+}
+#myTable tr:hover {
+    /* Add a grey background color to the table header and on hover */
+    background-color: #eee;
+}
+#myTable td:hover {
+    font-size: larger;
+    font-weight: 900;
+    color: blue;
+	border: 5px solid #090808;
+}
+
+table {overflow: hidden; border-collapse: separate; }
+td, th {position: relative; }
+table td:hover:after {background: #eee; content: ''; position: absolute; width: 100%; height: 10000px; left: 0; top: -5000px; z-index: -1; }
+table td:hover:before {background: #f5f5f5; content: ''; position: absolute; width: 10000px; height: 100%; left: -5000px; top: 0; z-index: -1; }
