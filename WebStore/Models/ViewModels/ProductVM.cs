@@ -8,5 +8,7 @@ namespace WebStore.Models.ViewModels
         public IEnumerable<SelectListItem>? CategorySelectList { get; set; } = null;
         public IFormFile imageF {  get; set; }
         public int categoryVM { get; set; }
+        public IEnumerable<SelectListItem>? ApplicationTypeSelectList { get; set; } = null;
+
     }
 }

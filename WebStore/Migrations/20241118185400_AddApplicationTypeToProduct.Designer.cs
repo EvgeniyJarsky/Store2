@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebStore.Data;
 
@@ -10,9 +11,11 @@ using WebStore.Data;
 namespace WebStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241118185400_AddApplicationTypeToProduct")]
+    partial class AddApplicationTypeToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,7 +69,7 @@ namespace WebStore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApplicationTypeId")
+                    b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
                     b.Property<int>("CategoryId")
@@ -89,7 +92,7 @@ namespace WebStore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationTypeId");
+                    b.HasIndex("ApplicationId");
 
                     b.HasIndex("CategoryId");
 
@@ -100,7 +103,7 @@ namespace WebStore.Migrations
                 {
                     b.HasOne("WebStore.Models.ApplicationType", "ApplicationType")
                         .WithMany()
-                        .HasForeignKey("ApplicationTypeId")
+                        .HasForeignKey("ApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
