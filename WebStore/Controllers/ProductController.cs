@@ -5,6 +5,7 @@ using WebStore.Models;
 using WebStore.Models.ViewModels;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebStore.Controllers
 {
@@ -111,12 +112,44 @@ namespace WebStore.Controllers
                 else
                 {
                     //Updating
+                    var objFromDb = _db.Product.AsNoTracking().FirstOrDefault(u => u.Id == productVM.Product.Id);
+                    if(files.Count > 0) // значит файл уже добавлен
+                    {
+                        string upload = webRootPath + WC.ImagePath;
+                        string fileName = Guid.NewGuid().ToString();
+                        string extension = Path.GetExtension(files[0].FileName);
+
+                        // Удалить старый файл
+                        var oldFile = Path.Combine(upload, objFromDb.Image); // Ссылка на старое фото
+                        if(System.IO.File.Exists(oldFile))
+                        {
+                            System.IO.File.Delete(oldFile); // Удалить старый файл
+                        }
+                        
+                        // Добавить новый файл
+                        using (var fileStream = new FileStream(Path.Combine(upload, fileName + extension), FileMode.Create))
+                        {
+                            files[0].CopyTo(fileStream);
+                        }
+
+                        productVM.Product.Image = fileName + extension;
+                    }
+                    else // Если файл для загрузки не менялся, но были обновлены другие свойства
+                    {
+                        productVM.Product.Image = objFromDb.Image;
+                    }
+                    _db.Product.Update(productVM.Product);
                 }
 
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View();
+            productVM.CategorySelectList = _db.Category.Select(i => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+            return View(productVM);
 
         }
 
@@ -128,23 +161,31 @@ namespace WebStore.Controllers
             {
                 return NotFound();
             }
+            Product product = _db.Product.Include(u => u.Category).FirstOrDefault(u => u.Id == id);
+            if (product == null) return NotFound();
 
-            var obj = _db.Category.Find(id);
-            if (obj == null) return NotFound();
-
-            return View(obj);
+            return View(product);
         }
 
         // POST - Delete
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeletePost(int? id)
         {
-            var obj = _db.Category.Find(id);
+            var obj = _db.Product.Find(id);
 
             if (obj == null) return NotFound();
 
-                _db.Category.Remove(obj);
+            string upload = _webHostEnvironment.WebRootPath + WC.ImagePath;
+
+            // Удалить старый файл
+            var oldFile = Path.Combine(upload, obj.Image); // Ссылка на старое фото
+            if (System.IO.File.Exists(oldFile))
+            {
+                System.IO.File.Delete(oldFile); // Удалить старый файл
+            }
+
+            _db.Product.Remove(obj);
                 _db.SaveChanges();
                 return RedirectToAction("Index");
         }
